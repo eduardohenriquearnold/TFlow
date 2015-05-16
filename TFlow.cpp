@@ -1,31 +1,4 @@
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/video/background_segm.hpp>
-#include <iostream>
-#include <fstream>
-
-using namespace std;
-using namespace cv;
-
-class TFlow
-{
-        private:
-                VideoCapture vc;
-                Mat ROITransform;
-                Size ROISize;
-                
-                void orderPointsClockwise(vector<Point2f>& pts);
-                Mat getTransMatrix(vector<Point2f>& src, Size s);
-                Mat getROI(Mat f);
-                
-        public:
-                TFlow();
-                void genConfig();
-                void loadConfig();
-                void play();
-};
+#include "TFlow.hpp"
 
 TFlow::TFlow()
 {
@@ -34,10 +7,7 @@ TFlow::TFlow()
         if (confFile.good())
                 loadConfig();
         else
-        {
-                cout << "Configuration File not found. Configure the system now." << endl;
-                genConfig();
-        }
+                cout << "Configuration File not found. Configure the system before using." << endl;        
 }
 
 //Helper function to genConfig
@@ -229,10 +199,4 @@ void TFlow::play()
                 imshow("ROI", roi);
                 c = waitKey(100);
         }
-}
-
-int main()
-{
-        TFlow t;
-        t.play();
 }
