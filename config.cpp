@@ -58,3 +58,8 @@ void genConfig()
         exit(0);
         
 }
+
+int main()
+{
+        genConfig();
+}

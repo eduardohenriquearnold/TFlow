@@ -75,7 +75,7 @@ int main()
                 //Get new Frame
                 vc >> cur;
                 //cvtColor(cur, cur, CV_RGB2GRAY);               
-                trans = getROI(cur, pts, Point2f(640,320));
+                trans = getROI(cur, pts, Point2f(200,600));
                                                                            
                 //Show result
                 imshow("Current frame", cur);
