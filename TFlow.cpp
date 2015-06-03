@@ -187,16 +187,22 @@ Mat TFlow::getROI(Mat f)
 
 void TFlow::play()
 {
-        Mat f, roi;
-        char c = 'c';
+        BackgroundSubtractorMOG2 bs;        
+        bs.set("backgroundRatio", 0.8); 
+        bs.set("nShadowDetection", 0);       
+                
+        Mat f, roi, fg;
         
+        char c = 'c';        
         while(c != 'e')
         {
                 vc >> f;
                 roi = getROI(f);
+                bs(roi, fg, 0.01);
                 
                 imshow("Video", f);
                 imshow("ROI", roi);
+                imshow("Foreground", fg);
                 c = waitKey(100);
         }
 }
