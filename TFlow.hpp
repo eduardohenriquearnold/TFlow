@@ -15,13 +15,13 @@ class TFlow
                 Size ROISize;
                 
                 void orderPointsClockwise(vector<Point2f>& pts);
-                Mat getTransMatrix(vector<Point2f>& src, Size s);
+                Mat getTransMatrix(vector<Point2f>& src1, Size s);
                 Mat getROI(Mat f);
                 
         public:
-                TFlow();
-                void genConfig();
-                void loadConfig();
+                TFlow(){};
+                void genConfig(string cFile);
+                void loadConfig(string cFile);
                 void play();
 };
 

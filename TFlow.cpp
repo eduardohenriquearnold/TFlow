@@ -1,15 +1,5 @@
 #include "TFlow.hpp"
 
-TFlow::TFlow()
-{
-        ifstream confFile("data.xml");
-        
-        if (confFile.good())
-                loadConfig();
-        else
-                cout << "Configuration File not found. Configure the system before using." << endl;        
-}
-
 //Helper function to genConfig
 void WCallBack(int event, int x, int y, int flags, void* param)
 {
@@ -49,7 +39,7 @@ void WCallBack(int event, int x, int y, int flags, void* param)
                 pointID= -1;
 }
 
-void TFlow::genConfig()
+void TFlow::genConfig(string cFile)
 {
         cout << "TFlow Configuration Process" << endl;
         cout << "Type the stream url or the video file path." << endl;
@@ -60,7 +50,7 @@ void TFlow::genConfig()
         cout << "Type the size of the Region of Interest. width, height." << endl;
         cin >> w >> h;
         ROISize.width = w;
-        ROISize.height = h;
+        ROISize.height = h;       
         
         cout << "An image of the video will appear, please drag the points to adjust the Region of Interest (ROI). When done, press Q to quit. To begin, press ENTER." << endl;
         cin.get();
@@ -68,7 +58,7 @@ void TFlow::genConfig()
         //Open Stream and get 10th frame
         vc.open(url);
         Mat frame;
-        for (int i; i<10; i++)
+        for (int i=0; i<10; i++)
                 vc >> frame;
                  
         //Create points in ROI
@@ -78,8 +68,10 @@ void TFlow::genConfig()
         roi[2] *= 3./4;
         roi[3] *= 3./4;
         roi[1].x = roi[2].x;
-        roi[2].x = roi[0].x;   
+        roi[2].x = roi[0].x; 
+        orderPointsClockwise(roi);
         
+        //Create window and set mouse event
         namedWindow("Video", 1);
         setMouseCallback("Video", WCallBack, &roi);          
                 
@@ -111,7 +103,7 @@ void TFlow::genConfig()
         }
         
         //Save config
-        FileStorage fs("data.xml", FileStorage::WRITE);
+        FileStorage fs(cFile, FileStorage::WRITE);
         fs << "url" << url;
         fs << "ROISize" << ROISize;
         fs << "ROITransform" << ROITransform;
@@ -122,10 +114,18 @@ void TFlow::genConfig()
         exit(0);
 }
 
-void TFlow::loadConfig()
+void TFlow::loadConfig(string cFile)
 {
+        //Check for configuration file
+        ifstream confFile(cFile);        
+        if (!confFile.good())
+        {
+                cout << "Configuration File not found. Configure the system before using." << endl;  
+                return;
+        }
+                                
         //Load configuration file and parameters
-        FileStorage fs("data.xml", FileStorage::READ);
+        FileStorage fs(cFile, FileStorage::READ);
         string url;
         fs["url"] >> url;
         fs["ROISize"] >> ROISize;
@@ -160,8 +160,11 @@ void TFlow::orderPointsClockwise(vector<Point2f>& pts)
 }
 
 //Given a frame, a set of src points and a frame size, gives the perspective transformation Matrix
-Mat TFlow::getTransMatrix(vector<Point2f>& src, Size s)
+Mat TFlow::getTransMatrix(vector<Point2f>& src1, Size s)
 {
+        //Generate copy of src vector to avoid loosing references (Wcallback)
+        vector<Point2f> src(src1);
+        
         //Generate set of dst points
         vector<Point2f> dst(4, Point2f(s));
         dst[0].x=0; dst[0].y=0;
