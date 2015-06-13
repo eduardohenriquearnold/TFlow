@@ -1,8 +1,12 @@
 #ifndef TFLOW
 #define TFLOW
+
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 #include <opencv2/opencv.hpp>
+
+#define contour vector<Point>
 
 using namespace std;
 using namespace cv;
@@ -17,6 +21,7 @@ class TFlow
                 void orderPointsClockwise(vector<Point2f>& pts);
                 Mat getTransMatrix(vector<Point2f>& src1, Size s);
                 Mat getROI(Mat f);
+                void blobs(Mat f, Mat& ROI);
                 
         public:
                 TFlow(){};

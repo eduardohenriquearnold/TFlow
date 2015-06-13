@@ -188,6 +188,31 @@ Mat TFlow::getROI(Mat f)
         return r;
 }
 
+void TFlow::blobs(Mat f, Mat& ROI)
+{
+        Mat m;
+        f.convertTo(m, CV_8UC1);
+                        
+        //Get contours
+        vector<contour> contours;
+        findContours(m, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        
+        //Remove contours with area less than 1% of ROI area (false positives)
+        auto filter = [&](contour r) { return contourArea(r)<0.01*ROISize.area(); };
+        vector<contour>::iterator end = remove_if(contours.begin(), contours.end(), filter);
+        contours.erase(end, contours.end());        
+               
+        //Get corresponding rectangles and draw them
+        for (int i=0; i< contours.size(); i++)
+        {
+                Rect r = boundingRect(contours[i]);
+                rectangle(ROI, r, Scalar(255,0,0));
+        }
+        
+        //imshow("ROI", ROI);
+        
+}
+
 void TFlow::play()
 {
         BackgroundSubtractorMOG2 bs;        
@@ -202,6 +227,8 @@ void TFlow::play()
                 vc >> f;
                 roi = getROI(f);
                 bs(roi, fg, 0.01);
+                
+                blobs(fg, roi);
                 
                 imshow("Video", f);
                 imshow("ROI", roi);
