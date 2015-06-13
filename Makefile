@@ -7,8 +7,8 @@ CLINE = $(CC) -std=$(STD) $(CVFLAGS) $(FLAGS)
 %.o: %.cpp %.hpp
 	$(CLINE) -c $< -o $@
 
-compile: TFlow.o
-	$(CLINE) TFlow.o app.cpp -o flow.out
+compile: Car.o TFlow.o
+	$(CLINE) Car.o TFlow.o app.cpp -o flow.out
 	
 clean:
 	rm *.o

@@ -188,28 +188,29 @@ Mat TFlow::getROI(Mat f)
         return r;
 }
 
-void TFlow::blobs(Mat f, Mat& ROI)
-{
-        Mat m;
-        f.convertTo(m, CV_8UC1);
+void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
+{       
+        //Convert matrix to 8U with 1C
+        fg.convertTo(fg, CV_8UC1);
                         
         //Get contours
         vector<contour> contours;
-        findContours(m, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        findContours(fg, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
         
         //Remove contours with area less than 1% of ROI area (false positives)
         auto filter = [&](contour r) { return contourArea(r)<0.01*ROISize.area(); };
         vector<contour>::iterator end = remove_if(contours.begin(), contours.end(), filter);
         contours.erase(end, contours.end());        
                
-        //Get corresponding rectangles and draw them
+        //Get corresponding rectangles and create Cars object for each one
         for (int i=0; i< contours.size(); i++)
         {
                 Rect r = boundingRect(contours[i]);
-                rectangle(ROI, r, Scalar(255,0,0));
+                Mat im = ROI(r);
+                Point2f pos = 0.5* (r.tl() + r.br());
+                fgDetected.push_back(Car(pos, im, time));                
         }
         
-        //imshow("ROI", ROI);
         
 }
 
@@ -227,12 +228,31 @@ void TFlow::play()
                 vc >> f;
                 roi = getROI(f);
                 bs(roi, fg, 0.01);
-                
-                blobs(fg, roi);
-                
+                              
                 imshow("Video", f);
                 imshow("ROI", roi);
                 imshow("Foreground", fg);
+                
+                double t = vc.get(CV_CAP_PROP_POS_MSEC);
+                cout << t << endl;
+                
+                fgDetected.clear();
+                getCarsFG(fg, roi, t);
+                
                 c = waitKey(100);
+                
+                if (c == 's')
+                        showCars();
+        }
+        
+}
+
+void TFlow::showCars()
+{
+        //Show Cars
+        for (int i=0; i< fgDetected.size(); i++)
+        {
+                imshow("Detected FG Car", fgDetected[i].img());
+                waitKey(1000);
         }
 }

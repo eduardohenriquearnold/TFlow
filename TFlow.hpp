@@ -5,6 +5,7 @@
 #include <fstream>
 #include <algorithm>
 #include <opencv2/opencv.hpp>
+#include "Car.hpp"
 
 #define contour vector<Point>
 
@@ -21,7 +22,12 @@ class TFlow
                 void orderPointsClockwise(vector<Point2f>& pts);
                 Mat getTransMatrix(vector<Point2f>& src1, Size s);
                 Mat getROI(Mat f);
-                void blobs(Mat f, Mat& ROI);
+                
+                vector<Car> cars;
+                vector<Car> fgDetected;
+                void getCarsFG(Mat fg, Mat ROI, double time); //Fills fgDetected with the cars detected for a new instant of time
+                void updateCars();                            //Update cars by matching the newly detected with previous ones
+                void showCars(); //DEBUG
                 
         public:
                 TFlow(){};
