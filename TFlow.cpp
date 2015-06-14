@@ -191,11 +191,12 @@ Mat TFlow::getROI(Mat f)
 void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
 {       
         //Convert matrix to 8U with 1C
-        fg.convertTo(fg, CV_8UC1);
+        Mat fg2;
+        fg.convertTo(fg2, CV_8UC1);
                         
         //Get contours
         vector<contour> contours;
-        findContours(fg, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+        findContours(fg2, contours, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
         
         //Remove contours with area less than 1% of ROI area (false positives)
         auto filter = [&](contour r) { return contourArea(r)<0.01*ROISize.area(); };
@@ -203,31 +204,62 @@ void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
         contours.erase(end, contours.end());        
                
         //Get corresponding rectangles and create Cars object for each one
-        for (int i=0; i< contours.size(); i++)
+        for (contour& c : contours)
         {
-                Rect r = boundingRect(contours[i]);
-                Mat im = ROI(r);
-                Point2f pos = 0.5* (r.tl() + r.br());
-                fgDetected.push_back(Car(pos, im, time));                
+                Rect r = boundingRect(c);
+                fgDetected.push_back(Car(r, ROI, time));                
         }                
 }
 
-void TFlow::updateCars()
+void TFlow::updateCars(Mat ROI)
 {
-        //For each car in cars, look for a match on the new ones from Foreground
-        for (Car& c : cars)
+        bool DEBUG = true;
+        
+        //For each car in the FG, try to match to a previous, existing car. If it matches, swap cars and delete the oldest one.
+        list<Car>::iterator itFG, itC;
+        itFG = fgDetected.begin();
+        while (itFG != fgDetected.end())
         {
-                auto succUpdate = [&](Car& cFG) {return c.update(cFG);};
-                vector<Car>::iterator newEnd = remove_if(fgDetected.begin(), fgDetected.end(), succUpdate);
-                fgDetected.erase(newEnd, fgDetected.end());
+                                
+                for (itC = cars.begin(); itC != cars.end(); itC++)                        
+                {
+                
+                        //DEBUG
+                        if (DEBUG)
+                        {
+                        Mat t;
+                        ROI.copyTo(t);
+                        itC->plot(t);
+                        itFG->plot(t);
+                        imshow("comparing", t);
+                        waitKey();
+                        }
+                        
+                        //If there's a match, swap Cars and delete the oldest one
+                        if (itFG->match(*itC))
+                        {
+                                cout << "match found" << endl;
+                                cout << "velocity = " << itFG->velocity() << endl;
+                                iter_swap(itC, itFG);                                
+                                itFG = fgDetected.erase(itFG);
+                                if (itFG != fgDetected.begin())
+                                        itFG--;
+                                break;                    
+                        }                                                
+                        
+                }
+                        
+                itFG++;
         }
         
-        //Treat remaining cars (which did not found a match with already existing ones)
-        for (Car& c : fgDetected)
-        {
-                //Crappy solution, no checks are made
-                cars.push_back(c);
-        }
+        //Remove cars that are not in the scene anymore
+        auto onScene = [&](Car c) {return !c.onScene(ROI);};
+        itC = remove_if(cars.begin(), cars.end(), onScene);
+        cars.erase(itC, cars.end());
+
+        //New FG Cars that did not match old ones are included (should improve with some tests)
+        cars.insert(cars.end(), fgDetected.begin(), fgDetected.end());
+        
 }
 
 void TFlow::play()
@@ -253,7 +285,7 @@ void TFlow::play()
                 //Detect Foreground cars
                 fgDetected.clear();
                 getCarsFG(fg, roi, t);
-                updateCars();
+                updateCars(roi);
                                 
                 //Debug
                 for (Car& c : cars)

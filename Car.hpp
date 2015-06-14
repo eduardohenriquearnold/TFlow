@@ -2,27 +2,32 @@
 #define CAR
 
 #include <iostream>
+#include <string>
 #include <opencv2/opencv.hpp>
 
 using namespace cv;
+using namespace std;
 
 class Car
 {
         private:
-                Point2f pos;
+                Rect r;
                 Mat im;
                 double v;
                 double lu;                 //Last update time
                 
         public:
-                Car(Point2f p, Mat i, double t) : pos(p), im(i), v(0), lu(t) {};                
-                Car& operator=(Car& c);
+                Car(Rect re, Mat i, double t) : r(re), im(i(re)), v(0), lu(t) {};
+                Car& operator=(const Car& c);
                 
                 int area();
+                Point2f pos();
                 double velocity();
-                void plot(Mat& f);
                 
-                bool update(Car& c);
+                void plot(Mat& f);
+
+                bool onScene(Mat& f);
+                bool match(Car& c);     //Assume function is being called from the 'newest' car.
                 
 };
 

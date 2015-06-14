@@ -23,10 +23,10 @@ class TFlow
                 Mat getTransMatrix(vector<Point2f>& src1, Size s);
                 Mat getROI(Mat f);
                 
-                vector<Car> cars;
-                vector<Car> fgDetected;
+                list<Car> cars;
+                list<Car> fgDetected;
                 void getCarsFG(Mat fg, Mat ROI, double time); //Fills fgDetected with the cars detected for a new instant of time
-                void updateCars();                            //Update cars by matching the newly detected with previous ones
+                void updateCars(Mat ROI);                     //Update cars by matching the newly detected with previous ones
                 
         public:
                 TFlow(){};
