@@ -20,7 +20,7 @@ class Car
                 
                 int area();
                 double velocity();
-                Mat& img();
+                void plot(Mat& f);
                 
                 bool update(Car& c);
                 

@@ -209,9 +209,25 @@ void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
                 Mat im = ROI(r);
                 Point2f pos = 0.5* (r.tl() + r.br());
                 fgDetected.push_back(Car(pos, im, time));                
+        }                
+}
+
+void TFlow::updateCars()
+{
+        //For each car in cars, look for a match on the new ones from Foreground
+        for (Car& c : cars)
+        {
+                auto succUpdate = [&](Car& cFG) {return c.update(cFG);};
+                vector<Car>::iterator newEnd = remove_if(fgDetected.begin(), fgDetected.end(), succUpdate);
+                fgDetected.erase(newEnd, fgDetected.end());
         }
         
-        
+        //Treat remaining cars (which did not found a match with already existing ones)
+        for (Car& c : fgDetected)
+        {
+                //Crappy solution, no checks are made
+                cars.push_back(c);
+        }
 }
 
 void TFlow::play()
@@ -221,38 +237,37 @@ void TFlow::play()
         bs.set("nShadowDetection", 0);       
                 
         Mat f, roi, fg;
+        double t;
         
         char c = 'c';        
         while(c != 'e')
         {
+                //Get frame and time
                 vc >> f;
+                t = vc.get(CV_CAP_PROP_POS_MSEC);
+                
+                //Get ROI and do BackgroundSubtraction to obtain Foreground MASK
                 roi = getROI(f);
                 bs(roi, fg, 0.01);
-                              
+
+                //Detect Foreground cars
+                fgDetected.clear();
+                getCarsFG(fg, roi, t);
+                updateCars();
+                                
+                //Debug
+                for (Car& c : cars)
+                        c.plot(roi);
+                        
+                cout << t << endl;                              
                 imshow("Video", f);
                 imshow("ROI", roi);
                 imshow("Foreground", fg);
                 
-                double t = vc.get(CV_CAP_PROP_POS_MSEC);
-                cout << t << endl;
-                
-                fgDetected.clear();
-                getCarsFG(fg, roi, t);
-                
+
                 c = waitKey(100);
-                
-                if (c == 's')
-                        showCars();
         }
         
 }
 
-void TFlow::showCars()
-{
-        //Show Cars
-        for (int i=0; i< fgDetected.size(); i++)
-        {
-                imshow("Detected FG Car", fgDetected[i].img());
-                waitKey(1000);
-        }
-}
+

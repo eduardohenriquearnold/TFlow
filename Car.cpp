@@ -10,17 +10,18 @@ inline double Car::velocity()
         return v;
 }
 
-Mat& Car::img()
-{
-        return im;
-}
-
 Car& Car::operator=(Car& c)
 {
         pos = c.pos;
         c.im.copyTo(im);
         v = c.v;
         lu = c.lu;
+}
+
+void Car::plot(Mat& f)
+{
+        Point2f s = 0.5*Point2f(im.size());
+        rectangle(f, pos-s, pos+s, Scalar(255,0,0));
 }
 
 bool Car::update(Car& c)

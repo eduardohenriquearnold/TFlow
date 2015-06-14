@@ -27,7 +27,6 @@ class TFlow
                 vector<Car> fgDetected;
                 void getCarsFG(Mat fg, Mat ROI, double time); //Fills fgDetected with the cars detected for a new instant of time
                 void updateCars();                            //Update cars by matching the newly detected with previous ones
-                void showCars(); //DEBUG
                 
         public:
                 TFlow(){};
