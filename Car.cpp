@@ -20,12 +20,19 @@ Car& Car::operator=(const Car& c)
         r = c.r;
         c.im.copyTo(im);
         v = c.v;
-        lu = c.lu;
+        ts = c.ts;
 }
 
-void Car::plot(Mat& f)
+void Car::plot(Mat& f, int c)
 {
-        rectangle(f, r, Scalar(255,0,0));
+        Scalar color;
+        
+        if (c==0)
+                color=Scalar(255,0,0);
+        else
+                color=Scalar(0,255,0);
+                
+        rectangle(f, r, color);
         
         string s = string("v=")+to_string(velocity());
         putText(f, s, pos(), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0,255,0));
@@ -41,7 +48,7 @@ bool Car::onScene(Mat& f)
         absdiff(im, im2, abd);
         double cmp = norm(abd, NORM_L1)/area();  
                       
-        return cmp < 100;
+        return cmp < 30;
 }
 
 bool Car::match(Car& c)
@@ -66,7 +73,7 @@ bool Car::match(Car& c)
         if (d < 20 && a < 0.4 && cmp < 200)
         {
                 //Update velocity
-                v = d/(lu-c.lu);
+                v = d/(ts-c.ts);
                 
                 return true;
         }
