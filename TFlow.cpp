@@ -220,7 +220,7 @@ void TFlow::updateCars(Mat ROI)
         itFG = fgDetected.begin();
         while (itFG != fgDetected.end())
         {
-                                
+                bool foundMatch = false;                
                 for (itC = cars.begin(); itC != cars.end(); itC++)                        
                 {
                 
@@ -238,18 +238,18 @@ void TFlow::updateCars(Mat ROI)
                         //If there's a match, swap Cars and delete the oldest one
                         if (itFG->match(*itC))
                         {
-                                cout << "match found" << endl;
-                                cout << "velocity = " << itFG->velocity() << endl;
+                                //cout << "match found" << endl;
+                                //cout << "velocity = " << itFG->velocity() << endl;
                                 iter_swap(itC, itFG);                                
                                 itFG = fgDetected.erase(itFG);
-                                if (itFG != fgDetected.begin())
-                                        itFG--;
+                                foundMatch = true;
                                 break;                    
                         }                                                
                         
                 }
-                        
-                itFG++;
+                
+                if (!foundMatch)        
+                        itFG++;
         }
         
         //Remove cars that are not in the scene anymore
@@ -275,8 +275,9 @@ void TFlow::play()
         while(c != 'e')
         {
                 //Get frame and time
-                vc >> f;
-                t = vc.get(CV_CAP_PROP_POS_MSEC);
+                if (!vc.read(f))
+                        break;          
+                t = vc.get(CV_CAP_PROP_POS_MSEC);                
                 
                 //Get ROI and do BackgroundSubtraction to obtain Foreground MASK
                 roi = getROI(f);
@@ -296,17 +297,28 @@ void TFlow::play()
                 getCarsFG(fg, roi, t);
                 updateCars(roi);
                                 
-                //Debug
+                //Compute Statistics and show cars
+                double carArea, occ, flow;
+                carArea = 0; flow = 0;
                 for (Car& c : cars)
+                {
+                        carArea += c.area();
+                        flow += c.area()*c.velocity();
                         c.plot(roi,0);
+                }
+                occ = carArea/ROISize.area();
+                if (carArea >0)
+                        flow /= carArea;
+                else
+                        flow = 0;
                         
-                cout << t << endl;                              
+                cout << t << "ms occ=" << occ << " flow=" << flow << endl;                              
+                
                 imshow("Video", f);
                 imshow("ROI", roi);
-                imshow("Foreground", fg);
-                
+                imshow("Foreground", fg);                
 
-                c = waitKey(200);
+                c = waitKey(100);
         }
         
 }

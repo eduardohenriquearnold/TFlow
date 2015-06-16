@@ -67,10 +67,10 @@ bool Car::match(Car& c)
         double cmp = norm(abd, NORM_L1)/area();
         
         //DEBUG
-        cout << "d="<< d << "   a=" << a << "     cmp="<< cmp << endl;
+        //cout << "d="<< d << "   a=" << a << "     cmp="<< cmp << endl;
         
         //Check all conditions to confirm a match
-        if (d < 20 && a < 0.4 && cmp < 200)
+        if (d < 20 && a < 0.5 && cmp < 200)
         {
                 //Update velocity
                 v = d/(ts-c.ts);
