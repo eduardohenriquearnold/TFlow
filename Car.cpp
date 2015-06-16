@@ -18,7 +18,7 @@ inline Point2f Car::pos()
 Car& Car::operator=(const Car& c)
 {
         r = c.r;
-        c.im.copyTo(im);
+        c.hist.copyTo(hist);
         v = c.v;
         ts = c.ts;
 }
@@ -38,17 +38,35 @@ void Car::plot(Mat& f, int c)
         putText(f, s, pos(), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0,255,0));
 }
 
+void Car::calcHistogram(SparseMat& h, Mat& im)
+{
+        const int sizes[] = {256,256,256};
+        const int channels[] = {0,1,2};
+        float range[] = {0,256};
+        const float *ranges[] = {range,range,range};
+
+        calcHist(&im, 1, channels, Mat(), h, 3, sizes, ranges);
+}
+
 bool Car::onScene(Mat& f)
 {
-        //Crop image to car area
-        Mat im2 = f(r);
-
-        //Calculate absolute difference between new frame and the one with the car
-        Mat abd;
-        absdiff(im, im2, abd);
-        double cmp = norm(abd, NORM_L1)/area();  
-                      
-        return cmp < 30;
+        //Crop image to rect area
+        Mat im = f(r);
+        
+        //Calculate new histogram
+        SparseMat nhist;
+        calcHistogram(nhist, im);
+        
+        //Compare them (correlation)
+        double corr = compareHist(hist, nhist, CV_COMP_CORREL);                      
+        
+        //DEBUG
+        Mat p = f.clone();
+        plot(p, 0);
+        imshow("OnScene Debug", p);
+        waitKey();
+        cout << "corr = " << corr << endl;
+        return corr > 0.6;                
 }
 
 bool Car::match(Car& c)
@@ -60,17 +78,14 @@ bool Car::match(Car& c)
         double a = abs(double(area())/ c.area());
         a = abs(a-1);
         
-        //Im comparisson
-        Mat c2, abd;
-        resize(c.im, c2, im.size());
-        absdiff(im, c2, abd);
-        double cmp = norm(abd, NORM_L1)/area();
+        //Hist correlation
+        double hCorr = compareHist(hist, c.hist, CV_COMP_CORREL);
         
         //DEBUG
-        cout << "d="<< d << "   a=" << a << "     cmp="<< cmp << endl;
+        cout << "d="<< d << "   a=" << a << "     corr="<< hCorr << endl;
         
         //Check all conditions to confirm a match
-        if (d < 20 && a < 0.4 && cmp < 200)
+        if (d < 20 && a < 0.4 && hCorr > 0.1)
         {
                 //Update velocity
                 v = d/(ts-c.ts);

@@ -276,6 +276,7 @@ void TFlow::play()
         {
                 //Get frame and time
                 vc >> f;
+                f.convertTo(f, CV_8UC3);
                 t = vc.get(CV_CAP_PROP_POS_MSEC);
                 
                 //Get ROI and do BackgroundSubtraction to obtain Foreground MASK
@@ -306,7 +307,7 @@ void TFlow::play()
                 imshow("Foreground", fg);
                 
 
-                c = waitKey();
+                c = waitKey(100);
         }
         
 }
