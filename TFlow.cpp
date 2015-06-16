@@ -211,7 +211,7 @@ void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
         }                
 }
 
-void TFlow::updateCars(Mat ROI)
+void TFlow::updateCars(Mat ROI, double time)
 {
         bool DEBUG = false;
         
@@ -253,7 +253,7 @@ void TFlow::updateCars(Mat ROI)
         }
         
         //Remove cars that are not in the scene anymore
-        auto onScene = [&](Car c) {return !c.onScene(ROI);};
+        auto onScene = [&](Car& c) {return !c.onScene(ROI, time);};
         itC = remove_if(cars.begin(), cars.end(), onScene);
         cars.erase(itC, cars.end());
 
@@ -295,9 +295,9 @@ void TFlow::play()
                 //Detect Foreground cars
                 fgDetected.clear();
                 getCarsFG(fg, roi, t);
-                updateCars(roi);
+                updateCars(roi,t);
                                 
-                //Compute Statistics and show cars
+                //Compute Statistics and show cars on ROI
                 double carArea, occ, flow;
                 carArea = 0; flow = 0;
                 for (Car& c : cars)
@@ -311,7 +311,8 @@ void TFlow::play()
                         flow /= carArea;
                 else
                         flow = 0;
-                        
+                
+                //Display results        
                 cout << t << "ms occ=" << occ << " flow=" << flow << endl;                              
                 
                 imshow("Video", f);

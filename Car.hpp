@@ -26,7 +26,7 @@ class Car
                 
                 void plot(Mat& f, int);
 
-                bool onScene(Mat& f);
+                bool onScene(Mat& f, double time);
                 bool match(Car& c);     //Assume function is being called from the 'newest' car.
                 
 };

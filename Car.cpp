@@ -38,8 +38,12 @@ void Car::plot(Mat& f, int c)
         putText(f, s, pos(), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0,255,0));
 }
 
-bool Car::onScene(Mat& f)
+bool Car::onScene(Mat& f, double time)
 {
+        //If timestamp is not current, force velocity to be zero (cannot be moving), otherwise it wouldnt match
+        if (ts<time)
+                v = 0;
+        
         //Crop image to car area
         Mat im2 = f(r);
 
