@@ -1,3 +1,6 @@
+/bib
+/conf
+/vid
 *.o
 *.out
 *.xml
