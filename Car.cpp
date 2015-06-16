@@ -23,11 +23,11 @@ Car& Car::operator=(const Car& c)
         ts = c.ts;
 }
 
-void Car::plot(Mat& f, int c)
+void Car::plot(Mat& f, char c)
 {
         Scalar color;
         
-        if (c==0)
+        if (c=='b')
                 color=Scalar(255,0,0);
         else
                 color=Scalar(0,255,0);
@@ -61,11 +61,11 @@ bool Car::onScene(Mat& f)
         double corr = compareHist(hist, nhist, CV_COMP_CORREL);                      
         
         //DEBUG
-        Mat p = f.clone();
+       /* Mat p = f.clone();
         plot(p, 0);
         imshow("OnScene Debug", p);
         waitKey();
-        cout << "corr = " << corr << endl;
+        cout << "corr = " << corr << endl;*/
         return corr > 0.6;                
 }
 
@@ -85,7 +85,7 @@ bool Car::match(Car& c)
         cout << "d="<< d << "   a=" << a << "     corr="<< hCorr << endl;
         
         //Check all conditions to confirm a match
-        if (d < 20 && a < 0.4 && hCorr > 0.1)
+        if (d < 20 && a < 0.5 && hCorr > 0.1)
         {
                 //Update velocity
                 v = d/(ts-c.ts);

@@ -27,7 +27,7 @@ class Car
                 Point2f pos();
                 double velocity();
                 
-                void plot(Mat& f, int);
+                void plot(Mat& f, char);
 
                 bool onScene(Mat& f);
                 bool match(Car& c);     //Assume function is being called from the 'newest' car.

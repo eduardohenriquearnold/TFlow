@@ -211,16 +211,15 @@ void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
         }                
 }
 
-void TFlow::updateCars(Mat ROI)
-{
-        bool DEBUG = false;
-        
+void TFlow::updateCars(Mat ROI, bool DEBUG)
+{       
         //For each car in the FG, try to match to a previous, existing car. If it matches, swap cars and delete the oldest one.
         list<Car>::iterator itFG, itC;
-        itFG = fgDetected.begin();
-        while (itFG != fgDetected.end())
+        
+        for (itFG = fgDetected.begin(); itFG != fgDetected.end(); )
         {
-                                
+                
+                bool foundMatch = false;                
                 for (itC = cars.begin(); itC != cars.end(); itC++)                        
                 {
                 
@@ -229,8 +228,8 @@ void TFlow::updateCars(Mat ROI)
                         {
                         Mat t;
                         ROI.copyTo(t);
-                        itC->plot(t,0);
-                        itFG->plot(t,1);
+                        itC->plot(t,'b');
+                        itFG->plot(t,'g');
                         imshow("comparing", t);
                         waitKey();
                         }
@@ -239,17 +238,17 @@ void TFlow::updateCars(Mat ROI)
                         if (itFG->match(*itC))
                         {
                                 cout << "match found" << endl;
-                                cout << "velocity = " << itFG->velocity() << endl;
-                                iter_swap(itC, itFG);                                
-                                itFG = fgDetected.erase(itFG);
-                                if (itFG != fgDetected.begin())
-                                        itFG--;
+                                iter_swap(itC, itFG);       
+                                itFG = fgDetected.erase(itFG);             
+                                foundMatch = true;
                                 break;                    
-                        }                                                
+                        }                                                                       
                         
                 }
+                
+                if (!foundMatch)
+                        itFG++;                
                         
-                itFG++;
         }
         
         //Remove cars that are not in the scene anymore
@@ -271,6 +270,8 @@ void TFlow::play()
         Mat f, roi, fg;
         double t;
         
+        bool debug = false;
+        
         char c = 'c';        
         while(c != 'e')
         {
@@ -278,6 +279,9 @@ void TFlow::play()
                 vc >> f;
                 f.convertTo(f, CV_8UC3);
                 t = vc.get(CV_CAP_PROP_POS_MSEC);
+                
+                if (t>460)
+                        debug = false;
                 
                 //Get ROI and do BackgroundSubtraction to obtain Foreground MASK
                 roi = getROI(f);
@@ -295,11 +299,11 @@ void TFlow::play()
                 //Detect Foreground cars
                 fgDetected.clear();
                 getCarsFG(fg, roi, t);
-                updateCars(roi);
+                updateCars(roi, debug);
                                 
                 //Debug
                 for (Car& c : cars)
-                        c.plot(roi,0);
+                        c.plot(roi,'b');
                         
                 cout << t << endl;                              
                 imshow("Video", f);
