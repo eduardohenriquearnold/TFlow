@@ -106,6 +106,14 @@
 		                <!-- BS -->
 		                <section>
 		                        <section>
+		                                <h4>2. Detect cars</h4>
+		                                <p>It is necessary to detect cars in the image in order to track and count them. How should this be done?
+		                                </p>
+
+                                                <p class="fragment">Using a classifier?</p>
+                                                <p class="fragment">Or better, using a Background Subtraction method that does not need any previous information about the system. </p>
+		                        </section>
+		                        <section>
 			                        <h4>2. Detect moving regions</h4>
                                                 <h5>Background Subtraction (BS)</h5>
 				                <ul>
@@ -117,12 +125,39 @@
 				                </ul> 	
 			                </section>		                        
 			                <section>				                
-			                        <img class="stretch" width="500" height="250" data-src="imgs/bs.jpg">
+			                        <img class="stretch" width="600" height="400" data-src="imgs/bs.jpg">
 			                        <small>Result obtained with Background Subtraction</small>
-			                </section>			                
+			                </section>	
+			                <section>
+                                                <h5>Background Subtraction (BS)</h5>
+                                                
+                                                <p>This method gives a great result and does not require training. However, it introduces another problem.</p>
+                                                <p class="fragment">What happens when a car stay still for a long period of time?</p>
+			                        <img class="fragment stretch" width="500" height="500" data-src="imgs/bs-problem.jpg">
+                                                <p class="fragment">To account for this problem, we will maintain a record of all detected cars and check if they are still in the scene using a descriptor described in later section.</p>
+                                        </section>		                
 		                </section>
 		                
 		                <!-- Detect Foreground Cars -->
+		                <section>
+		                        <section>
+		                                <h4>3. Detect cars in foreground mask</h4>
+		                                
+		                                <ol>
+		                                        <li>Get contours of foreground mask</li>
+		                                        <li>Get bounding boxes around each of them</li>
+		                                        <li>Filter boxes by area to remove noise and false positives (area less than 1% of ROI)</li>
+		                                        <li>Create a <i>Car</i> object containing the region dimensions, time of detection and descriptor (discussed ahead) extracted from the current frame</li>
+		                                </ol>
+		                        </section>
+		                        
+		                        <section>
+                                                <img class="stretch" width="500" height="500" data-src="imgs/fg-detected.jpg">
+                                                <h6>Bounding box found around a valid region.</h6>
+		                        </section>
+		                </section>
+		                <!-- Matching process -->
+		                
 
 				
 				
