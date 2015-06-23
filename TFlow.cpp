@@ -202,18 +202,28 @@ void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
         auto filter = [&](contour r) { return contourArea(r)<0.01*ROISize.area(); };
         vector<contour>::iterator end = remove_if(contours.begin(), contours.end(), filter);
         contours.erase(end, contours.end());        
+        
+        cvtColor(fg, fg2, CV_GRAY2BGR);
                
         //Get corresponding rectangles and create Cars object for each one
         for (contour& c : contours)
         {
                 Rect r = boundingRect(c);
                 fgDetected.push_back(Car(r, ROI, time));                
+                fgDetected.back().plot(fg2, 0);
         }                
+        
+        if (fgDetected.size()>0)
+        {
+                imshow("FG detected", fg2);
+                waitKey();
+        }
+        
 }
 
 void TFlow::updateCars(Mat ROI, double time)
 {
-        bool DEBUG = false;
+        bool DEBUG = true;
         
         //For each car in the FG, try to match to a previous, existing car. If it matches, swap cars and delete the oldest one.
         list<Car>::iterator itFG, itC;
@@ -232,7 +242,18 @@ void TFlow::updateCars(Mat ROI, double time)
                         itC->plot(t,0);
                         itFG->plot(t,1);
                         imshow("comparing", t);
-                        waitKey();
+                        
+                        ROI.copyTo(t);
+                        for (Car& c : cars)
+                                c.plot(t,0);
+                        imshow("Moving cars", t);
+                        
+                        ROI.copyTo(t);
+                        for (Car& c : fgDetected)
+                                c.plot(t,1);
+                        imshow("FG detected cars", t);
+                        
+                        waitKey();                        
                         }
                         
                         //If there's a match, swap Cars and delete the oldest one
