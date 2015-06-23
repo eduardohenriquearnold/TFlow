@@ -46,6 +46,7 @@ void Car::calcHistogram(SparseMat& h, Mat& im)
         const float *ranges[] = {range,range,range};
 
         calcHist(&im, 1, channels, Mat(), h, 3, sizes, ranges);
+        normalize(h, h, 100, NORM_L2);
 }
 
 bool Car::onScene(Mat& f)
@@ -61,11 +62,11 @@ bool Car::onScene(Mat& f)
         double corr = compareHist(hist, nhist, CV_COMP_CORREL);                      
         
         //DEBUG
-       /* Mat p = f.clone();
+        Mat p = f.clone();
         plot(p, 0);
         imshow("OnScene Debug", p);
         waitKey();
-        cout << "corr = " << corr << endl;*/
+        cout << "corr = " << corr << endl;
         return corr > 0.6;                
 }
 
