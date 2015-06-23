@@ -63,7 +63,7 @@
 				<section>
 				        <h2>Objectives</h2>
 				        <ul>
-				                <li>Detect and possibly track vehicles.</li>
+				                <li>Detect vehicles and obtain their position, area and velocity.</li>
 				                <li>Obtain traffic parameters such as flow and occupancy for a given road.</li>
 				                <li>The above mentioned measures allow an estimative of the lanes condition (busy, traffic jam, low traffic).</li>
 				        </ul>
@@ -73,7 +73,7 @@
 				<section>
 				        <h2>Problem Definition</h2>
                                         
-                                        <p>Given a video stream it is necessary to find all vehicles in a frame. Next, to obtain the cars parameters such as area and velocity.</p>
+                                        <p>Given a video stream it is necessary to find all vehicles in a frame. Next, to obtain the cars parameters such as position, area and velocity. </p>
 				</section>
 				
 				
@@ -132,8 +132,9 @@
                                                 <h5>2.b Background Subtraction (BS)</h5>
                                                 
                                                 <p>This method gives a great result and does not require training. However, it introduces another problem.</p>
+                                                
                                                 <p class="fragment">What happens when a car stay still for a long period of time?</p>
-			                        <img class="fragment stretch" width="500" height="500" data-src="imgs/bs-problem.jpg">
+			                        <img class="fragment" width="900" height="250" data-src="imgs/bs-problem.jpg">
                                                 <p class="fragment">To account for this problem, we will maintain a record of all detected cars and check if they are still in the scene using a descriptor described in later section.</p>
                                         </section>		                
 		                </section>
@@ -148,7 +149,7 @@
 		                                        <li>Get bounding boxes around each of them</li>
 		                                        <li>Filter boxes by area to remove noise and false positives (area less than 1% of ROI)</li>
 		                                        <li>Create a <i>Car</i> object containing the region dimensions, time of detection and feature extracted with a descriptor from the current frame</li>
-	                                                <li>Store all detected cars in a <i>"foregroundCars"</i> vector.</li>
+	                                                <li>Store all detected cars in a <b>fgCars</b> vector.</li>
 		                                </ol>
 		                        </section>
 		                        		                        
@@ -166,17 +167,23 @@
 		                                        <li>It is necessary to indentify and distinguish the objects or data we are handling</li>
 		                                        
 		                                        <li>It oftens convert a great amount of data into a significant discriminating amount of useful information</li>
-		                                        		                                        		                                       
+		                                        		                                    		                                       
 		                                </ul>
 		                                
-		                                <div class="fragment">
-		                                        <p>In this project two descriptors were used:</p>
-		                                        <ol>
-		                                                <li>Raw pixels of the corresponding car patch</li>
-		                                                <li>Normalized color histogram of the corresponding car patch</li>
-		                                        </ol>
-		                                        <p>Their performance will be compared later.</p>
-		                                </p>
+                                                <img class="stretch" width="500" height="500" data-src="imgs/feature-extraction.jpg">
+                                                <small>Example of color histogram feature extraction</small>
+		                                
+	                                </section>
+	                                
+	                                <section>
+	                                        <h4>Descriptor</h4>		                                
+
+	                                        <p>In this project two descriptors were used:</p>
+	                                        <ol>
+	                                                <li>Raw pixels of the corresponding car patch</li>
+	                                                <li>Normalized color histogram of the corresponding car patch</li>
+	                                        </ol>
+	                                        <p>Their performance will be compared later.</p>
 		                        </section>
 		                </section>
 		                
@@ -185,12 +192,12 @@
 		                        <section>
 		                                <h4>4. Car Update Process</h4>
 		                                <ul>
-		                                        <li>We assume a vector of known moving cars, initially empty.</li>
-		                                        <li>Because moving cars will be repeatedly detected, we need to match these new detected cars to the movingCars vector, updating the movingCars vector if there's a match</li>
+		                                        <li>We assume a vector of known cars in the scene, called <b>cars</b>, initially empty.</li>
+		                                        <li>Because moving cars will be repeatedly detected, we need to check all <b>fgCars</b> against the <b>cars</b> vector, updating it if there's a match</li>
 		                                        
-		                                        <li>Also, we need to check if cars that did not move are still in the scene, by comparing the current frame feature with the one extracted when it was last detected. </li>
+		                                        <li>Also, we need to check if cars that did not move are still in the scene, removing them from <b>cars</b> otherwise </li>
 		                                        
-		                                        <li>Finally, we need to add the remaining detected cars that did not match to the moving cars vector, to account for new moving cars.</li>
+		                                        <li>Finally, we need to add the remaining <b>fgCars</b> that did find a match to the <b>cars</b> vector to account for new moving cars.</li>
 		                                </ul>
 		                        </section>
 		                        
@@ -199,8 +206,8 @@
 		                                <p>A pair of cars is considered a match (correspond to the same car, but shifted in time) if the following conditions are met:</p>
 		                                
 		                                <ol>
-		                                        <li>Distance between their centroids is smaller than a threshold $t_{dist}$ </li>
-		                                        <li>Ratio of their areas meets the condition $1+t_a \leq \frac{A_{c1}}{A_{c2}} \leq 1-t_a$ where $t_a$ is a area threshold deviation. </li>
+		                                        <li>Distance between their centroids is smaller than a threshold $t_\text{dist}$ </li>
+		                                        <li>Ratio of their areas meets the condition $1-t_a \leq \frac{A_{c1}}{A_{c2}} \leq 1+t_a$ where $t_a$ is the area deviation threshold</li>
 		                                        <li>Correlation calculated between their features is greater than a threshold $t_f$</li>
 		                                </ol>		                                
 		                        </section>
@@ -212,7 +219,13 @@
 		                                <ul>
 		                                        <li>Car position, feature and last detected time is updated</li>
 		                                        <li>Car relative velocity is calculated using $v=\frac{d}{\Delta t}$</li>
+		                                        <li>Corresponding car is removed from foreground detected cars to reduce complexity</li>
 		                                </ul>
+		                        </section>
+		                        
+		                        <section>
+                                                <img class="stretch" width="500" height="500" data-src="imgs/matching-process.jpg">
+                                                <small>Matching example, this comparisson failed</small>
 		                        </section>
 		                        
 		                        <section> 
@@ -225,19 +238,57 @@
 		                                        <li>The correlation between this new extracted feature and the one previous recorded is computed.</li>
 		                                        <li>The car is considered to still be in the scene if the correlation value is higher than a given threshold $t_\text{corr scene}$</li>
 		                                        
+		                                        <li>If the above test fails, it is removed from the vector</li>
+		                                        
 		                                </ol>
 		                        </section>
 		                        
 		                       <section>
 		                                <h4>4.c Car update process conclusion</h4>
 		                                
-		                                <p>By adopting all these measures, it is possible to know the position and velocity of any given car in an instant by inspection of the <i>moving cars</i> vector. <p>
+		                                <p>By adopting all these measures, it is possible to know the position, area and relative velocity of any given car in an instant by inspection of the <b>cars</b> vector. </p>
 		                                
 		                                <p>This approach also solves the problem of car "fading" introduced by the use of the background subtractor method.</p>
 		                       </section>		                        
 	                        </section>
 	                        
 	                        <!-- Flow information -->
+	                        <section>
+	                                <h4>5. Flow measures</h4>
+	                                
+	                                <p>In order to detect the state of a lane it is enough to know two measures:</p>
+	                                <ul>
+	                                        <li>Car flow $$F=\sum_i A_i v_i$$ where $A_i$, $v_i$ is the car area and velocity </li>
+	                                        <li>Road occupation $$U=\frac{\sum_i Ai}{A_\text{ROI}}$$</li>
+	                                </ul>
+	                                
+	                                <p>A congested road will present very low flow with high occupation, while a busy but not congested road will present high figures for both values. A free road will present low flow and occupation.</p>
+	                                
+	                        </section>
+	                        
+
+                        <!-- Results -->
+                        <section>
+                                <section>
+                                <h3>Results</h3>
+                                </section>
+                                
+                                <section>
+                                        <p>Video tracking and object detection can be a difficult task. In this sense, it is not rare to make mistakes in detecting objects. </p>
+                                        
+                                        <p></p>
+                                </section>
+                                
+                                
+                        </section>
+                        
+                        <!-- Software -->
+                        <section>
+                                <p>This software was made using <b>C++</b> and <a href="http://opencv.org/">OpenCV</a>.</p>
+                                <p>The source code can be found at <a href="https://github.com/eduardohenriquearnold/TFlow">https://github.com/eduardohenriquearnold/TFlow</a> </p>
+                        </section>
+                        
+                        
 	                        
 	                        
 	                        
@@ -258,6 +309,12 @@
 				progress: true,
 				history: true,
 				center: true,
+				
+                                margin: 0.05,
+                                minScale: 0.02,
+                                maxScale: 1.0,
+                                height: 768,
+                                width: 960,
 
 				transition: 'slide', // none/fade/slide/convex/concave/zoom
 				
