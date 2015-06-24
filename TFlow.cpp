@@ -272,6 +272,9 @@ void TFlow::play()
         
         bool debug = false;
         
+        //Record video object
+        VideoWriter makeVideo;
+        
         char c = 'c';        
         while(c != 'e')
         {
@@ -283,15 +286,7 @@ void TFlow::play()
                 //Get ROI and do BackgroundSubtraction to obtain Foreground MASK
                 roi = getROI(f);
                 bs(roi, fg, 0.01);
-                
-                //Skip duplicate frames (gives wrong velocity info)
-                /*if (fg.cols > 0)
-                        if (countNonZero(nfg != fg) > 0)
-                                nfg.copyTo(fg);
-                        else
-                                continue;
-                else
-                        nfg.copyTo(fg);*/
+
 
                 //Detect Foreground cars
                 fgDetected.clear();
@@ -307,11 +302,21 @@ void TFlow::play()
                 imshow("ROI", roi);
                 imshow("Foreground", fg);
                 
-                if (t<17400)
-                        continue;
+                //Record video
+                cvtColor(fg, fg, CV_GRAY2BGR);
+                Mat record;
+                vconcat(roi, fg, record); 
+                
+                if (!makeVideo.isOpened())
+                        makeVideo.open("./res.avi", CV_FOURCC('M', 'J', 'P', 'G'), vc.get(CV_CAP_PROP_FPS), record.size(), true);
+                        
+                makeVideo << record;
+
                         
                 c = waitKey(100);
         }
+        
+        makeVideo.release();
         
 }
 
