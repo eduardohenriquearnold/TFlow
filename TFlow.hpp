@@ -1,5 +1,4 @@
-#ifndef TFLOW
-#define TFLOW
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -35,4 +34,3 @@ class TFlow
                 void play();
 };
 
-#endif

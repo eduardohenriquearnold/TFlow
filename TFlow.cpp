@@ -201,29 +201,21 @@ void TFlow::getCarsFG(Mat fg, Mat ROI, double time)
         //Remove contours with area less than 1% of ROI area (false positives)
         auto filter = [&](contour r) { return contourArea(r)<0.01*ROISize.area(); };
         vector<contour>::iterator end = remove_if(contours.begin(), contours.end(), filter);
-        contours.erase(end, contours.end());        
+        contours.erase(end, contours.end());     
         
-        cvtColor(fg, fg2, CV_GRAY2BGR);
-               
         //Get corresponding rectangles and create Cars object for each one
         for (contour& c : contours)
         {
                 Rect r = boundingRect(c);
                 fgDetected.push_back(Car(r, ROI, time));                
                 fgDetected.back().plot(fg2, 0);
-        }                
-        
-        if (fgDetected.size()>0)
-        {
-                imshow("FG detected", fg2);
-                waitKey();
-        }
+        }   
         
 }
 
 void TFlow::updateCars(Mat ROI, double time)
 {
-        bool DEBUG = true;
+        bool DEBUG = false;
         
         //For each car in the FG, try to match to a previous, existing car. If it matches, swap cars and delete the oldest one.
         list<Car>::iterator itFG, itC;
@@ -280,7 +272,6 @@ void TFlow::updateCars(Mat ROI, double time)
 
         //New FG Cars that did not match old ones are included (should improve with some tests)
         cars.insert(cars.end(), fgDetected.begin(), fgDetected.end());
-        
 }
 
 void TFlow::play()
@@ -304,15 +295,6 @@ void TFlow::play()
                 roi = getROI(f);
                 bs(roi, fg, 0.01);
                 
-                //Skip duplicate frames (gives wrong velocity info)
-                /*if (fg.cols > 0)
-                        if (countNonZero(nfg != fg) > 0)
-                                nfg.copyTo(fg);
-                        else
-                                continue;
-                else
-                        nfg.copyTo(fg);*/
-
                 //Detect Foreground cars
                 fgDetected.clear();
                 getCarsFG(fg, roi, t);
@@ -333,7 +315,7 @@ void TFlow::play()
                 else
                         flow = 0;
                 
-                //Display results        
+                //Display results
                 cout << t << "ms occ=" << occ << " flow=" << flow << endl;                              
                 
                 imshow("Video", f);

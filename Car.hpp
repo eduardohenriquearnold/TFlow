@@ -1,5 +1,4 @@
-#ifndef CAR
-#define CAR
+#pragma once
 
 #include <iostream>
 #include <string>
@@ -31,4 +30,3 @@ class Car
                 
 };
 
-#endif

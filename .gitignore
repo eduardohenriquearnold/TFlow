@@ -1,6 +1,7 @@
 /bib
 /conf
 /vid
+/presentation
 *.o
 *.out
 *.xml
