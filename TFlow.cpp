@@ -279,10 +279,7 @@ void TFlow::play()
                 vc >> f;
                 f.convertTo(f, CV_8UC3);
                 t = vc.get(CV_CAP_PROP_POS_MSEC);
-                
-                if (t>460)
-                        debug = false;
-                
+                                
                 //Get ROI and do BackgroundSubtraction to obtain Foreground MASK
                 roi = getROI(f);
                 bs(roi, fg, 0.01);
@@ -299,7 +296,7 @@ void TFlow::play()
                 //Detect Foreground cars
                 fgDetected.clear();
                 getCarsFG(fg, roi, t);
-                updateCars(roi, debug);
+                updateCars(roi, debug);               
                                 
                 //Debug
                 for (Car& c : cars)
@@ -310,7 +307,9 @@ void TFlow::play()
                 imshow("ROI", roi);
                 imshow("Foreground", fg);
                 
-
+                if (t<17400)
+                        continue;
+                        
                 c = waitKey(100);
         }
         

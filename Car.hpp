@@ -12,11 +12,11 @@ class Car
 {
         private:
                 Rect r;
-                SparseMat hist;
+                Mat hist;
                 double v;
                 double ts;                 //TimeStamp: Last update time 
                 
-                void calcHistogram(SparseMat& h, Mat& im);               
+                void calcHistogram(Mat& h, Mat& im);               
                 
         public:
                 Car(Rect re, Mat i, double t) : r(re), v(0), ts(t){Mat im = i(re); calcHistogram(hist, im);};

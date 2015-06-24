@@ -38,15 +38,37 @@ void Car::plot(Mat& f, char c)
         putText(f, s, pos(), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0,255,0));
 }
 
-void Car::calcHistogram(SparseMat& h, Mat& im)
+void Car::calcHistogram(Mat& h, Mat& im)
 {
-        const int sizes[] = {256,256,256};
+/*        const int sizes[] = {256};
         const int channels[] = {0,1,2};
         float range[] = {0,256};
         const float *ranges[] = {range,range,range};
 
-        calcHist(&im, 1, channels, Mat(), h, 3, sizes, ranges);
+        calcHist(&im, 1, channels, Mat(), h, 2, sizes, ranges);
+        normalize(h, h, 100, NORM_L2);*/
+        
+        Mat im2;
+        cvtColor(im, im2, CV_BGR2GRAY);
+        
+        // Quantize the hue to 30 levels
+        // and the saturation to 32 levels
+        int hbins = 256;
+        int histSize[] = {hbins};
+        
+        // hue varies from 0 to 179, see cvtColor
+        float hranges[] = { 0, 256 };
+        
+        // saturation varies from 0 (black-gray-white) to
+        // 255 (pure spectrum color)
+        const float* ranges[] = { hranges};
+        
+        // we compute the histogram from the 0-th and 1-st channels
+        int channels[] = {0};
+
+        calcHist( &im2, 1, channels, Mat(), h, 1, histSize, ranges, true, false );
         normalize(h, h, 100, NORM_L2);
+        
 }
 
 bool Car::onScene(Mat& f)
@@ -55,18 +77,22 @@ bool Car::onScene(Mat& f)
         Mat im = f(r);
         
         //Calculate new histogram
-        SparseMat nhist;
+        Mat nhist;
         calcHistogram(nhist, im);
         
         //Compare them (correlation)
         double corr = compareHist(hist, nhist, CV_COMP_CORREL);                      
         
         //DEBUG
-        Mat p = f.clone();
+        /*Mat p = f.clone();
         plot(p, 0);
         imshow("OnScene Debug", p);
-        waitKey();
         cout << "corr = " << corr << endl;
+
+        //cout << nhist << endl;
+        imshow("last car", im);
+        waitKey();*/
+                              
         return corr > 0.6;                
 }
 
