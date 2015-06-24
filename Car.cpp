@@ -49,24 +49,23 @@ void Car::calcHistogram(Mat& h, Mat& im)
         normalize(h, h, 100, NORM_L2);*/
         
         Mat im2;
-        cvtColor(im, im2, CV_BGR2GRAY);
+        cvtColor(im, im2, CV_BGR2HSV);
         
         // Quantize the hue to 30 levels
         // and the saturation to 32 levels
-        int hbins = 256;
-        int histSize[] = {hbins};
-        
+        int hbins = 30, sbins = 32;
+        int histSize[] = {hbins, sbins};
         // hue varies from 0 to 179, see cvtColor
-        float hranges[] = { 0, 256 };
-        
+        float hranges[] = { 0, 180 };
         // saturation varies from 0 (black-gray-white) to
         // 255 (pure spectrum color)
-        const float* ranges[] = { hranges};
-        
+        float sranges[] = { 0, 256 };
+        const float* ranges[] = { hranges, sranges };
+        MatND hist;
         // we compute the histogram from the 0-th and 1-st channels
-        int channels[] = {0};
+        int channels[] = {0, 1};
 
-        calcHist( &im2, 1, channels, Mat(), h, 1, histSize, ranges, true, false );
+        calcHist( &im2, 1, channels, Mat(), h, 2, histSize, ranges, true, false );
         normalize(h, h, 100, NORM_L2);
         
 }
