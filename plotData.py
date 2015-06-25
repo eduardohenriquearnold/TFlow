@@ -1,3 +1,7 @@
+#Code to present data created by TFlow app graphically
+#Created in 24/06/2015 by Eduardo Henrique Arnold
+#Credits to Danial Taherzadeh (https://taher-zadeh.com/speeding-matplotlib-plotting-times-real-time-monitoring-purposes/) for the dynamic update of Matplotlib, significantly improving performance to achieve real time results
+
 import re
 import numpy as np
 
@@ -65,12 +69,4 @@ while True:
         
         #Fill axes
         fig.canvas.blit(ax.bbox)
-
-
-
-        
-        
-        
-        
-        
 
