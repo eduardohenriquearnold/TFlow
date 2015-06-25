@@ -65,7 +65,7 @@
 				        <ul>
 				                <li>Detect vehicles and obtain their position, area and velocity.</li>
 				                <li>Obtain traffic parameters such as flow and occupancy for a given road.</li>
-				                <li>The above mentioned measures allow an estimative of the lanes condition (busy, traffic jam, low traffic).</li>
+				                <li>The above mentioned measures allow an estimation of the lanes condition (busy, free, congested).</li>
 				        </ul>
 				        
 				</section>
@@ -79,7 +79,7 @@
 				
 				<!-- Algorithm -->
 			        <section>
-			                <h2>Propposed solution</h2>				        
+			                <h2>Proposed solution</h2>				        
 		                </section>	
 			                
                                 <!-- ROI -->			                
@@ -111,7 +111,7 @@
 		                                </p>
 
                                                 <p class="fragment">Using a classifier?</p>
-                                                <p class="fragment">Or better, using a Background Subtraction method that does not need any previous information about the system. </p>
+                                                <p class="fragment">Or better, using a Background Subtraction method that does not require any previous information about the system. </p>
 		                        </section>
 		                        <section>
 			                        <h4>2.a Detect moving regions</h4>
@@ -119,8 +119,8 @@
 				                <ul>
 				                        <li>A background model is generated and a foreground mask is obtained by subtracting the original frame with the estimated background</li>
 				                        <li>The background model is updated at every frame, reducing the effect of illumination changes over time.</li>
-			                                <li>The model used in this case uses a Mixture of Gaussians (MOG) representation for each pixel, trying to represent the most often occuring values.</li>
-			                                <li>Careful adjustment of the BS object can give better results, however may be scene depedent.</li>
+			                                <li>The model used in this case uses a Mixture of Gaussians (MOG) representation for each pixel, trying to represent the most often occurring values.</li>
+			                                <li>Careful adjustment of the BS object can give better results, however may be scene dependent.</li>
 				                        				                       
 				                </ul> 	
 			                </section>		                        
@@ -131,7 +131,7 @@
 			                <section>
                                                 <h5>2.b Background Subtraction (BS)</h5>
                                                 
-                                                <p>This method gives a great result and does not require training. However, it introduces another problem.</p>
+                                                <p>This method gives a good result and does not require training. However, it introduces another problem.</p>
                                                 
                                                 <p class="fragment">What happens when a car stay still for a long period of time?</p>
 			                        <img class="fragment" width="900" height="250" data-src="imgs/bs-problem.jpg">
@@ -164,9 +164,9 @@
 		                                
 		                                <ul>
 		                                        <li>A descriptor tries to describe useful, <b>discriminating</b>, information about a set of data</li>
-		                                        <li>It is necessary to indentify and distinguish the objects or data we are handling</li>
+		                                        <li>It is necessary to identify and distinguish the objects or data we are handling</li>
 		                                        
-		                                        <li>It oftens convert a great amount of data into a significant discriminating amount of useful information</li>
+		                                        <li>It often convert a great amount of data into a significant discriminating amount of useful information</li>
 		                                        		                                    		                                       
 		                                </ul>
 		                                
@@ -178,10 +178,11 @@
 	                                <section>
 	                                        <h4>Descriptor</h4>		                                
 
-	                                        <p>In this project two descriptors were used:</p>
+	                                        <p>In this project the following descriptors were tested:</p>
 	                                        <ol>
 	                                                <li>Raw pixels of the corresponding car patch</li>
-	                                                <li>Normalized color histogram of the corresponding car patch</li>
+	                                                <li>Normalized <b>HS</b>V histogram of the corresponding car patch</li>
+	                                                <li>Normalized Grayscale histogram of the corresponding car patch</li>
 	                                        </ol>
 	                                        <p>Their performance will be compared later.</p>
 		                        </section>
@@ -197,7 +198,7 @@
 		                                        
 		                                        <li>Also, we need to check if cars that did not move are still in the scene, removing them from <b>cars</b> otherwise </li>
 		                                        
-		                                        <li>Finally, we need to add the remaining <b>fgCars</b> that did find a match to the <b>cars</b> vector to account for new moving cars.</li>
+		                                        <li>Finally, we need to add the remaining <b>fgCars</b> that did not find a match to the <b>cars</b> vector to account for new moving cars.</li>
 		                                </ul>
 		                        </section>
 		                        
@@ -225,7 +226,7 @@
 		                        
 		                        <section>
                                                 <img class="stretch" width="500" height="500" data-src="imgs/matching-process.jpg">
-                                                <small>Matching example, this comparisson failed</small>
+                                                <small>Matching example, this comparison failed</small>
 		                        </section>
 		                        
 		                        <section> 
@@ -302,9 +303,9 @@
                                         <h4>Conclusions</h4>
                                         
                                         <ul>
-                                                <li>HSV Histogram, even though only considers Hue and Saturation, is too sensitive to lightning conditions and camera color distortion. </li>
+                                                <li>HSV Histogram, even though only considers Hue and Saturation, is too sensitive color distortion. </li>
                                                 
-                                                <li>Grayscale histogram gives a better result, proving itself resilient against changes in color, however does not discriminate car/non-car patches, so gives many false positives</li>
+                                                <li>Grayscale histogram gives a better result, proving itself resilient against changes in color, however is not discriminate enough, so gives many false positives</li>
                                                 
                                                 <li>The winner in this case is the raw patch pixel values, since it takes in account all channels and is resilient to color noise</li>
                                         </ul>
