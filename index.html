@@ -269,31 +269,91 @@
 
                         <!-- Results -->
                         <section>
-                                <section>
-                                <h3>Results</h3>
-                                </section>
-                                
-                                <section>
-                                        <p>Video tracking and object detection can be a difficult task. In this sense, it is not rare to make mistakes in detecting objects. </p>
-                                        
-                                        <p></p>
-                                </section>
-                                
-                                
+                        <h3>Results</h3>
                         </section>
+                        
+                        <section>
+                                <section>
+                                <h3>Descriptors Comparison</h3>
+                                </section>
+                                
+                                <section>
+                                        <h6>HSV Histogram</h6>
+                                        <video controls>
+                                            <source data-src="vids/resHSV.mkv" type="video/mp4" />
+                                         </video>
+                                </section>
+                                
+                                <section>
+                                        <h6>Grayscale Histogram</h6>
+                                        <video controls>
+                                            <source data-src="vids/resGRAY.mkv" type="video/mp4" />
+                                         </video>
+                                </section>
+                                
+                                <section>
+                                        <h6>Image patch raw pixel values</h6>
+                                        <video controls>
+                                            <source data-src="vids/resPATCH.mkv" type="video/mp4" />
+                                         </video>
+                                </section>
+                                
+                                <section>
+                                        <h4>Conclusions</h4>
+                                        
+                                        <ul>
+                                                <li>HSV Histogram, even though only considers Hue and Saturation, is too sensitive to lightning conditions and camera color distortion. </li>
+                                                
+                                                <li>Grayscale histogram gives a better result, proving itself resilient against changes in color, however does not discriminate car/non-car patches, so gives many false positives</li>
+                                                
+                                                <li>The winner in this case is the raw patch pixel values, since it takes in account all channels and is resilient to color noise</li>
+                                        </ul>
+                                </section>
+                        </section>
+                                
+                        <section>
+                                <section>
+                                        <h4>Traffic parameters estimation</h4>
+                                        <video controls>
+                                            <source data-src="vids/demo.mkv" type="video/mp4" />
+                                         </video>
+                                 </section>
+                                 
+                                 <section>
+                                        <h4>Conclusions</h4>
+                                        
+                                        <ul>
+                                                <li>Detection fails sometimes, specially when the car color is similar to the background</li>
+                                                <li>Occlusion may cause two cars to be detected as one</li>
+                                                <li>The range of extracted parameters is clear enough to identify three distinct situations: congestion, busy road and free road.</li>
+                                        </ul>
+                                 </section>
+                                 
+                                 <section>
+                                        <h4>Improvements</h4>
+                                        
+                                        <ul>
+                                                <li>Car area matching could be enhanced to detect maximum vehicle area, thus improving the occupancy estimation.</li>
+                                                
+                                                <li>Background subtraction parameters could analyzed in wider ranges</li>
+                                                
+                                        </ul>
+                                 </section>
+                         </section>
+                                 
+
+
                         
                         <!-- Software -->
                         <section>
+                                <h4>About this</h4>
                                 <p>This software was made using <b>C++</b> and <a href="http://opencv.org/">OpenCV</a>.</p>
                                 <p>The source code can be found at <a href="https://github.com/eduardohenriquearnold/TFlow">https://github.com/eduardohenriquearnold/TFlow</a> </p>
+                                <p>Thanks</p>
                         </section>
                         
                         
-	                        
-	                        
-	                        
-	                
-	                </section>
+	                        	               
 			</div>
 		</div>
 
